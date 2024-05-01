@@ -127,7 +127,7 @@ sleep 10
 	
 fromFile := thread_recvData.unzipped.fromFileFull ? """" thread_recvData.unzipped.fromFileFull """" : (thread_recvData.fromFileFull ? """" thread_recvData.fromFileFull """" : "" )
 toFile := thread_recvData.toFileFull ? """" thread_recvData.toFileFull """" : ""
-cmdLine := CHDMAN_FILE_LOC . " " . thread_recvData.cmd . thread_recvData.cmdOpts . " -v" . (fromFile ? " -i " fromFile : "") . (toFile ? " -o " toFile : "")
+cmdLine := CHDMAN_FILE_LOC . " " . thread_recvData.cmd . thread_recvData.cmdOpts . (fromFile ? " -i " fromFile : "") . (toFile ? " -o " toFile : "")
 thread_log("`nCommand line: " cmdLine "`n`n")
 
 thread_sendData.progress := 0
