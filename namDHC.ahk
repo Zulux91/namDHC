@@ -114,12 +114,16 @@ v1.13
 - Fixed output folder being cleared if cancel was clicked in the select folder helper
 - Removed close button on console windows
 - Some cleanup
+
+v1.14
+- Included 0.268 in the release list
+- Drag n drop implemented (taken from TFWol PR https://github.com/umageddon/namDHC/pull/16)
 )
 
 
 ; Default global values 
 ; ---------------------
-CURRENT_VERSION := "1.131"
+CURRENT_VERSION := "1.14"
 CHECK_FOR_UPDATES_STARTUP := "yes"
 CHDMAN_FILE_LOC := a_scriptDir "\chdman.exe"
 DIR_TEMP := a_Temp "\namDHC"
@@ -136,7 +140,7 @@ WAIT_TIME_CONSOLE_SEC := 1
 JOB_QUEUE_SIZE := 3
 JOB_QUEUE_SIZE_LIMIT := 10
 OUTPUT_FOLDER := a_workingDir
-PLAY_SONG_FINISHED := "no"
+PLAY_SONG_FINISHED := "yes"
 REMOVE_FILE_ENTRY_AFTER_FINISH := "yes"
 SHOW_JOB_CONSOLE := "no"
 SHOW_VERBOSE_WINDOW := "no"
