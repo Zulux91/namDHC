@@ -123,7 +123,7 @@ CURRENT_VERSION := "1.131"
 CHECK_FOR_UPDATES_STARTUP := "yes"
 CHDMAN_FILE_LOC := a_scriptDir "\chdman.exe"
 DIR_TEMP := a_Temp "\namDHC"
-CHDMAN_VERSION_ARRAY := ["0.239", "0.240", "0.241", "0.249", "0.265"]
+CHDMAN_VERSION_ARRAY := ["0.239", "0.240", "0.241", "0.249", "0.265", "0.268"]
 GITHUB_REPO_URL := "https://api.github.com/repos/umageddon/namDHC/releases/latest" 
 APP_MAIN_NAME := "namDHC"
 APP_VERBOSE_NAME := APP_MAIN_NAME " - Verbose"
@@ -136,7 +136,7 @@ WAIT_TIME_CONSOLE_SEC := 1
 JOB_QUEUE_SIZE := 3
 JOB_QUEUE_SIZE_LIMIT := 10
 OUTPUT_FOLDER := a_workingDir
-PLAY_SONG_FINISHED := "yes"
+PLAY_SONG_FINISHED := "no"
 REMOVE_FILE_ENTRY_AFTER_FINISH := "yes"
 SHOW_JOB_CONSOLE := "no"
 SHOW_VERBOSE_WINDOW := "no"
@@ -190,7 +190,7 @@ GUI.dropdowns.job := { 	 create: {pos:1,desc:"Create CHD files from media"}
 						,addMeta: {pos:5, desc:"Add metadata to CHD files"}
 						,delMeta: {pos:6, desc:"Delete metadata from CHD files"} 
 						*/
-GUI.dropdowns.media :=	{ dvd: "DVD image", cd:"CD image", hd:"Hard disk image", ld:"LaserDisc image", raw:"Raw image" }
+GUI.dropdowns.media :=	{ cd:"CD image", dvd: "DVD image", hd:"Hard disk image", ld:"LaserDisc image", raw:"Raw image" }
 
 GUI.buttons.default :=	{normal:[0, 0xFFCCCCCC, "", "", 3], hover:[0, 0xFFBBBBBB, "", 0xFF555555, 3], clicked:[0, 0xFFCFCFCF, "", 0xFFAAAAAA, 3], disabled:[0, 0xFFE0E0E0, "", 0xFFAAAAAA, 3] }
 GUI.buttons.cancel :=	{normal:[0, 0xFFFC6D62, "", "White", 3], hover:[0, 0xFFff8e85, "", "White", 3], clicked:[0, 0xFFfad5d2, "", "White", 3], disabled:[0, 0xFFfad5d2, "", "White", 3]}
@@ -247,6 +247,7 @@ Format:
 */	
 
 GUI.chdmanOpt.force :=				{name: "force",				paramString: "f",	description: "Force overwriting an existing output file"}
+GUI.chdmanOpt.verbose :=			{name: "verbose",			paramString: "v",	description: "Verbose output"}
 GUI.chdmanOpt.outputBin :=			{name: "outputbin",			paramString: "ob",	description: "Output filename for binary data", 			editField: "filename.bin", useQuotes:true}
 GUI.chdmanOpt.inputParent :=		{name: "inputparent", 		paramString: "ip",	description: "Input Parent", 								editField: "filename.ext", useQuotes:true}
 GUI.chdmanOpt.inputStartFrame :=	{name: "inputstartframe", 	paramString: "isf",	description: "Input Start Frame", 							editField: 0}
@@ -378,7 +379,7 @@ selectJob()
 	switch dropdownJob {
 		case GUI.dropdowns.job.create.desc:
 			newStartButtonLabel := "CREATE CHD"	
-			guiCtrl({dropdownMedia:"|" GUI.dropdowns.media.dvd "|" GUI.dropdowns.media.cd "|" GUI.dropdowns.media.hd "|" GUI.dropdowns.media.ld "|" GUI.dropdowns.media.raw})
+			guiCtrl({dropdownMedia:"|" GUI.dropdowns.media.cd "|" GUI.dropdowns.media.dvd "|" GUI.dropdowns.media.hd "|" GUI.dropdowns.media.ld "|" GUI.dropdowns.media.raw})
 
 		case GUI.dropdowns.job.extract.desc:											
 			newStartButtonLabel := "EXTRACT MEDIA"
@@ -424,8 +425,8 @@ selectMedia()
 
 	; User selected media
 	switch dropdownMedia {
-		case GUI.dropdowns.media.dvd: 	mediaSel := "dvd"
 		case GUI.dropdowns.media.cd: 	mediaSel := "cd"
+		case GUI.dropdowns.media.dvd: 	mediaSel := "dvd"
 		case GUI.dropdowns.media.hd:	mediaSel := "hd"
 		case GUI.dropdowns.media.ld:	mediaSel := "ld"
 		case GUI.dropdowns.media.raw:	mediaSel := "raw"
@@ -444,13 +445,13 @@ selectMedia()
 	
 	; Assign rest of job variables according to job
 	switch job.Cmd {
-		case "extractdvd":	job.InputExtTypes := ["chd"],								job.OutputExtTypes := ["iso"],					job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.outputBin, GUI.chdmanOpt.inputParent]
 		case "extractcd":	job.InputExtTypes := ["chd"],								job.OutputExtTypes := ["cue", "toc", "gdi"],	job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.outputBin, GUI.chdmanOpt.inputParent]
+		case "extractdvd":	job.InputExtTypes := ["chd"],								job.OutputExtTypes := ["iso"],					job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.outputBin, GUI.chdmanOpt.inputParent]
 		case "extractld":	job.InputExtTypes := ["chd"],								job.OutputExtTypes := ["raw"],					job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.inputParent, GUI.chdmanOpt.inputStartFrame, GUI.chdmanOpt.inputFrames]
 		case "extracthd":	job.InputExtTypes := ["chd"],								job.OutputExtTypes := ["img"],					job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.inputParent, GUI.chdmanOpt.inputStartByte, GUI.chdmanOpt.inputStartHunk, GUI.chdmanOpt.inputBytes, GUI.chdmanOpt.inputHunks]
 		case "extractraw":	job.InputExtTypes := ["chd"],								job.OutputExtTypes := ["img", "raw"],			job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.inputParent, GUI.chdmanOpt.inputStartByte, GUI.chdmanOpt.inputStartHunk, GUI.chdmanOpt.inputBytes, GUI.chdmanOpt.inputHunks]
-		case "createdvd": 	job.InputExtTypes := ["iso", "zip"],						job.OutputExtTypes := ["chd"],					job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.deleteInputDir, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.numProcessors, GUI.chdmanOpt.outputParent, GUI.chdmanOpt.hunkSize, GUI.chdmanOpt.compressionDvd]
 		case "createcd": 	job.InputExtTypes := ["cue", "toc", "gdi", "iso", "zip"],	job.OutputExtTypes := ["chd"],					job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.deleteInputDir, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.numProcessors, GUI.chdmanOpt.outputParent, GUI.chdmanOpt.hunkSize, GUI.chdmanOpt.compression]
+		case "createdvd": 	job.InputExtTypes := ["iso", "zip"],						job.OutputExtTypes := ["chd"],					job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.deleteInputDir, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.numProcessors, GUI.chdmanOpt.outputParent, GUI.chdmanOpt.hunkSize, GUI.chdmanOpt.compressionDvd]
 		case "createld":	job.InputExtTypes := ["raw", "zip"],						job.OutputExtTypes := ["chd"],					job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.deleteInputDir, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.numProcessors, GUI.chdmanOpt.outputParent, GUI.chdmanOpt.inputStartFrame, GUI.chdmanOpt.inputFrames, GUI.chdmanOpt.hunkSize, GUI.chdmanOpt.compression]
 		case "createhd":	job.InputExtTypes := ["img", "zip"],						job.OutputExtTypes := ["chd"],					job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.deleteInputDir, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.numProcessors, GUI.chdmanOpt.compression, GUI.chdmanOpt.outputParent, GUI.chdmanOpt.size, GUI.chdmanOpt.inputStartByte, GUI.chdmanOpt.inputStartHunk, GUI.chdmanOpt.inputBytes, GUI.chdmanOpt.inputHunks, GUI.chdmanOpt.hunkSize, GUI.chdmanOpt.ident, GUI.chdmanOpt.template, GUI.chdmanOpt.chs, GUI.chdmanOpt.sectorSize]
 		case "createraw":	job.InputExtTypes := ["img", "raw", "zip"],					job.OutputExtTypes := ["chd"],					job.Options := [GUI.chdmanOpt.force, GUI.chdmanOpt.createSubDir, GUI.chdmanOpt.deleteInputFiles, GUI.chdmanOpt.deleteInputDir, GUI.chdmanOpt.keepIncomplete, GUI.chdmanOpt.numProcessors, GUI.chdmanOpt.outputParent, GUI.chdmanOpt.inputStartByte, GUI.chdmanOpt.inputStartHunk, GUI.chdmanOpt.inputBytes, GUI.chdmanOpt.inputHunks, GUI.chdmanOpt.hunkSize, GUI.chdmanOpt.unitSize, GUI.chdmanOpt.compression]
@@ -697,6 +698,10 @@ addFolderFiles()
 						newFiles.push(a_LoopFileLongPath)
 				}
 			}
+		
+		case "listViewInputFiles":
+			loop, parse, A_GuiEvent, % "`n"
+				newFiles.push(a_Loopfield)
 	}
 	
 	if ( newFiles.length() ) {
@@ -2005,6 +2010,12 @@ removeFromArray(removeItem, byRef thisArray)
 	}
 	return thisArray
 }
+
+; Handle input file drag and drop
+;--------------------------------
+GuiDropFiles:
+	addFolderFiles()
+	return
 
 ; Get Windows current default font
 ; by SKAN
