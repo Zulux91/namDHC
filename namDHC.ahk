@@ -346,10 +346,10 @@ menuSelected()
 
 			gui 4: add, text, x10 y100, % "History"
 			gui 4: add, edit, x10 y120 h200 w775, % VER_HISTORY
-			gui 4: add, link, x10 y340, Github: <a href="https://github.com/umageddon/namDHC">https://github.com/umageddon/namDHC</a>
+			gui 4: add, link, x10 y340, Github: <a href="https://github.com/zulux91/namDHC">https://github.com/zulux91/namDHC</a>
 			gui 4: add, link, x10 y360, MAME Info: <a href="https://www.mamedev.org/">https://www.mamedev.org/</a>
 			gui 4: font, s9 Q5 w400 c000000
-			gui 4: add, text, x10 y390, % "(C) Copyright 2022 Umageddon"
+			gui 4: add, text, x10 y390, % "(C) Copyright 2024 Zulux91"
 			gui 4: show, w800 center, About
 			Gui 4:+LastFound +AlwaysOnTop +ToolWindow
 			controlFocus,, About 												; Removes outline around html anchor
@@ -387,7 +387,7 @@ selectJob()
 
 		case GUI.dropdowns.job.extract.desc:											
 			newStartButtonLabel := "EXTRACT MEDIA"
-			guiCtrl({dropdownMedia:"|" GUI.dropdowns.media.dvd "|" GUI.dropdowns.media.cd "|" GUI.dropdowns.media.hd "|" GUI.dropdowns.media.ld "|" GUI.dropdowns.media.raw})
+			guiCtrl({dropdownMedia:"|" GUI.dropdowns.media.cd "|" GUI.dropdowns.media.dvd "|" GUI.dropdowns.media.hd "|" GUI.dropdowns.media.ld "|" GUI.dropdowns.media.raw})
 
 		case GUI.dropdowns.job.info.desc:
 			newStartButtonLabel := "GET INFO"
@@ -668,7 +668,7 @@ menuExtHandler(init:=false)
 addFolderFiles()
 {
 	global job, APP_MAIN_NAME
-	newFiles := [], extList := "", numAdded := 0
+	newFiles := [], extList := "", numAdded := 0, dirName := ""
 	
 	gui 1:submit, nohide
 	gui 1:+OwnDialogs 
@@ -705,7 +705,11 @@ addFolderFiles()
 		
 		case "listViewInputFiles":
 			loop, parse, A_GuiEvent, % "`n"
+			{
+				dirName := splitPath(a_Loopfield).dir
+				guiCtrl({editOutputFolder:dirName})
 				newFiles.push(a_Loopfield)
+			}
 	}
 	
 	if ( newFiles.length() ) {
