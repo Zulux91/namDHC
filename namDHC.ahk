@@ -687,9 +687,14 @@ addFolderFiles()
 				loop, parse, newInputList, % "`n" 
 				{
 					if ( a_index == 1 )
+					{
+						guiCtrl({editOutputFolder:a_Loopfield})
 						path := regExReplace(a_Loopfield, "\\$")
-					else 
+					}
+					else
+					{
 						newFiles.push(path "\" a_Loopfield)
+					}
 				}
 		
 		case "buttonAddFolder":
@@ -699,7 +704,11 @@ addFolderFiles()
 				
 				for idx, thisExt in job.selectedInputExtTypes {
 					loop, Files, % inputFolder "\*." thisExt, FR 
+					{
+						dirName := splitPath(a_LoopFileLongPath).dir
+						guiCtrl({editOutputFolder:dirName})
 						newFiles.push(a_LoopFileLongPath)
+					}
 				}
 			}
 		
