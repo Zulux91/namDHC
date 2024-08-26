@@ -141,6 +141,7 @@ JOB_QUEUE_SIZE := 3
 JOB_QUEUE_SIZE_LIMIT := 10
 OUTPUT_FOLDER := a_workingDir
 PLAY_SONG_FINISHED := "yes"
+INPUT_FOLDER_AS_OUTPUT_FOLDER := "yes"
 REMOVE_FILE_ENTRY_AFTER_FINISH := "yes"
 SHOW_JOB_CONSOLE := "no"
 SHOW_VERBOSE_WINDOW := "no"
@@ -156,7 +157,7 @@ APP_MAIN_WIN_POS_Y := 100
 ; Read ini to write over globals if changed previously
 ;-------------------------------------------------------------
 ini("read" 
-	,["JOB_QUEUE_SIZE","OUTPUT_FOLDER","SHOW_JOB_CONSOLE","SHOW_VERBOSE_WINDOW","PLAY_SONG_FINISHED","REMOVE_FILE_ENTRY_AFTER_FINISH", "APP_NO_DPI_SCALE"
+	,["JOB_QUEUE_SIZE","OUTPUT_FOLDER","SHOW_JOB_CONSOLE","SHOW_VERBOSE_WINDOW","PLAY_SONG_FINISHED","INPUT_FOLDER_AS_OUTPUT_FOLDER","REMOVE_FILE_ENTRY_AFTER_FINISH", "APP_NO_DPI_SCALE"
 	,"APP_MAIN_WIN_POS_X","APP_MAIN_WIN_POS_Y","APP_VERBOSE_WIN_WIDTH","APP_VERBOSE_WIN_HEIGHT","APP_VERBOSE_WIN_POS_X","APP_VERBOSE_WIN_POS_Y","CHECK_FOR_UPDATES_STARTUP"])
 
 if ( !fileExist(CHDMAN_FILE_LOC) ) {
@@ -212,6 +213,7 @@ GUI.menu.Settings[4] :=	{name:"Show a console window for each new job",			gotola
 GUI.menu.Settings[5] :=	{name:"Play a sound when finished jobs",				gotolabel:"menuSelected",				saveVar:"PLAY_SONG_FINISHED"}
 GUI.menu.Settings[6] :=	{name:"Remove file entry from list on success",			gotolabel:"menuSelected",				saveVar:"REMOVE_FILE_ENTRY_AFTER_FINISH"}
 GUI.menu.Settings[7] :=	{name:"No DPI scaling - May help with cut off options",	gotolabel:"menuSelected",				saveVar:"APP_NO_DPI_SCALE", 	Fn: "msgNeedARestart"}
+GUI.menu.Settings[8] :=	{name:"Use input folder as output folder",				gotolabel:"menuSelected",				saveVar:"INPUT_FOLDER_AS_OUTPUT_FOLDER"}
 
 ; misc GUI variables
 ;-------------------------------------------------------------
@@ -667,7 +669,7 @@ menuExtHandler(init:=false)
 ;-------------------------------------------------------------
 addFolderFiles()
 {
-	global job, APP_MAIN_NAME
+	global job, APP_MAIN_NAME, INPUT_FOLDER_AS_OUTPUT_FOLDER
 	newFiles := [], extList := "", numAdded := 0, dirName := ""
 	
 	gui 1:submit, nohide
@@ -688,7 +690,8 @@ addFolderFiles()
 				{
 					if ( a_index == 1 )
 					{
-						guiCtrl({editOutputFolder:a_Loopfield})
+						if ( INPUT_FOLDER_AS_OUTPUT_FOLDER == "yes" )
+							guiCtrl({editOutputFolder:a_Loopfield})
 						path := regExReplace(a_Loopfield, "\\$")
 					}
 					else
@@ -705,8 +708,10 @@ addFolderFiles()
 				for idx, thisExt in job.selectedInputExtTypes {
 					loop, Files, % inputFolder "\*." thisExt, FR 
 					{
-						dirName := splitPath(a_LoopFileLongPath).dir
-						guiCtrl({editOutputFolder:dirName})
+						if ( INPUT_FOLDER_AS_OUTPUT_FOLDER == "yes" ) {
+							dirName := splitPath(a_LoopFileLongPath).dir
+							guiCtrl({editOutputFolder:dirName})
+						}
 						newFiles.push(a_LoopFileLongPath)
 					}
 				}
@@ -715,8 +720,10 @@ addFolderFiles()
 		case "listViewInputFiles":
 			loop, parse, A_GuiEvent, % "`n"
 			{
-				dirName := splitPath(a_Loopfield).dir
-				guiCtrl({editOutputFolder:dirName})
+				if ( INPUT_FOLDER_AS_OUTPUT_FOLDER == "yes" ) {
+					dirName := splitPath(a_Loopfield).dir
+					guiCtrl({editOutputFolder:dirName})
+				}
 				newFiles.push(a_Loopfield)
 			}
 	}
